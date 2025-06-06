@@ -73,6 +73,18 @@ async function searchCard() {
       </button>
       <div v-if="error" style="color: red; margin-top: 0.5rem">{{ error }}</div>
       <div v-if="result" style="margin-top: 1rem">
+        <div v-if="result.image">
+          <img
+            :src="result.image"
+            :alt="result.name || 'Card image'"
+            style="
+              max-width: 350px;
+              border-radius: 8px;
+              box-shadow: 0 2px 8px #0001;
+              margin-bottom: 1rem;
+            "
+          />
+        </div>
         <pre style="background: #f3f4f6; padding: 1rem; border-radius: 4px">{{
           result
         }}</pre>

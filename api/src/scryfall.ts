@@ -14,7 +14,11 @@ export async function getCardByName(name: string) {
   try {
     const card = await Scry.Cards.byName(name);
     if (card) {
-      return { name: card.name, text: card.getText() };
+      return {
+        name: card.name,
+        text: card.getText(),
+        image: card.image_uris?.normal || card.image_uris?.large || null,
+      };
     }
     return null;
   } catch (error) {
