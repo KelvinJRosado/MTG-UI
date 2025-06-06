@@ -5,6 +5,7 @@
  * This structure allows for easy expansion in the future.
  */
 import { createServer } from 'node:http';
+import { fetchSampleCards } from './mtgsdk-sample';
 
 const PORT = process.env.PORT || 3000;
 
@@ -27,6 +28,15 @@ const server = createServer((req, res) => {
     res.end(JSON.stringify({ error: 'Not found' }));
   }
 });
+
+// Test mtgsdk integration on server startup
+fetchSampleCards()
+  .then(cards => {
+    console.log('Sample MTG cards fetched:', cards);
+  })
+  .catch(err => {
+    console.error('Error fetching MTG cards:', err);
+  });
 
 server.listen(PORT, () => {
   console.log(`API server running at http://localhost:${PORT}`);
