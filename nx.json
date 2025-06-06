@@ -40,5 +40,11 @@
         "watchDepsTargetName": "watch-deps"
       }
     }
-  ]
+  ],
+  "cli": {
+    "interactive": false
+  },
+  "tui": {
+    "enabled": false
+  }
 }
