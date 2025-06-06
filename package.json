@@ -2,12 +2,11 @@
   "name": "mtg-vue",
   "version": "0.0.0",
   "scripts": {
-    "build": "nx run-many -t build",
-    "start:": "nx serve",
-    "start:all": "nx serve api ui",
-    "lint": "nx run-many -t lint",
-    "format": "nx format:write",
-    "format:check": "nx format:check",
+    "build": "nx run-many --target=build --parallel --projects=",
+    "build:all": "nx run-many --target=build --parallel --all",
+    "start": "nx run-many --target=serve --parallel --projects=",
+    "start:all": "nx run-many --target=serve --parallel --all",
+    "lint": "nx run-many --target=lint --all",
     "clean": "nx reset"
   },
   "private": true,
