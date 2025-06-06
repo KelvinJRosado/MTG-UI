@@ -4,8 +4,9 @@
   "scripts": {
     "build": "nx run-many --target=build --parallel --projects=",
     "build:all": "nx run-many --target=build --parallel --all",
-    "start": "nx run-many --target=serve --parallel --projects=",
-    "start:all": "nx run-many --target=serve --parallel --all",
+    "serve:api": "nx run-many --target=serve --projects=api",
+    "serve:ui": "nx run-many --target=serve --projects=ui",
+    "serve:all": "nx run-many --target=serve --parallel --all",
     "lint": "nx run-many --target=lint --all",
     "clean": "nx reset"
   },
