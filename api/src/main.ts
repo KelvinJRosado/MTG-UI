@@ -5,14 +5,36 @@
  * This structure allows for easy expansion in the future.
  */
 import { createServer } from 'node:http';
-import { fetchSampleCards } from './mtgsdk-sample';
+import { getCardByName } from './scryfall';
 
 const PORT = process.env.PORT || 3000;
 
-const server = createServer((req, res) => {
+const server = createServer(async (req, res) => {
   // Set CORS headers for development
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Content-Type', 'application/json');
+
+  // Handle GET /api/card?name=CardName
+  if (req.method === 'GET' && req.url && req.url.startsWith('/api/card')) {
+    const urlObj = new URL(req.url, `http://${req.headers.host}`);
+    const name = urlObj.searchParams.get('name');
+    if (!name) {
+      res.writeHead(400);
+      res.end(
+        JSON.stringify({ error: 'Missing required query parameter: name' })
+      );
+      return;
+    }
+    const card = await getCardByName(name);
+    if (card) {
+      res.writeHead(200);
+      res.end(JSON.stringify(card));
+    } else {
+      res.writeHead(404);
+      res.end(JSON.stringify({ error: 'Card not found' }));
+    }
+    return;
+  }
 
   // Only handle GET /
   if (req.method === 'GET' && req.url === '/') {
@@ -28,15 +50,6 @@ const server = createServer((req, res) => {
     res.end(JSON.stringify({ error: 'Not found' }));
   }
 });
-
-// Test mtgsdk integration on server startup
-fetchSampleCards()
-  .then(cards => {
-    console.log('Sample MTG cards fetched:', cards);
-  })
-  .catch(err => {
-    console.error('Error fetching MTG cards:', err);
-  });
 
 server.listen(PORT, () => {
   console.log(`API server running at http://localhost:${PORT}`);
