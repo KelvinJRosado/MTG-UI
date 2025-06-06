@@ -46,5 +46,9 @@
   },
   "tui": {
     "enabled": false
+  },
+  "projects": {
+    "api": "api",
+    "ui": "ui"
   }
 }

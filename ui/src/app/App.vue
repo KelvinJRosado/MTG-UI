@@ -1,22 +1,82 @@
 <script setup lang="ts">
 // Import Vue composition API utilities if needed in the future
 import { RouterLink, RouterView } from 'vue-router';
+import { ref } from 'vue';
+
+const cardName = ref('');
+const result = ref<any>(null);
+const loading = ref(false);
+const error = ref('');
+
+async function searchCard() {
+  error.value = '';
+  result.value = null;
+  if (!cardName.value) {
+    error.value = 'Please enter a card name.';
+    return;
+  }
+  loading.value = true;
+  try {
+    const apiUrl = `http://localhost:3000/api/card?name=${encodeURIComponent(
+      cardName.value
+    )}`;
+
+    console.log('Calling API endpoint:', apiUrl);
+
+    const res = await fetch(apiUrl);
+    if (!res.ok) {
+      const err = await res.json();
+      error.value = err.error || 'Error fetching card.';
+    } else {
+      result.value = await res.json();
+    }
+  } catch (e) {
+    console.log('Network error:', e);
+    error.value = 'Network error.';
+  } finally {
+    loading.value = false;
+  }
+}
 </script>
 
 <template>
   <header>
-    <h1>Simple UI</h1>
+    <h1>MTG Simple UI</h1>
     <nav>
       <!-- Navigation links -->
       <RouterLink to="/">Home</RouterLink>
-      <RouterLink to="/about">About</RouterLink>
     </nav>
   </header>
   <main>
     <!-- Welcome message -->
     <section>
-      <h2>Welcome to the Simple UI!</h2>
-      <p>This is a Vue 3 app using the Composition API.</p>
+      <h2>Welcome to my Simple MTG UI!</h2>
+      <p>
+        TUse this page to display basic information about a selected MTG card.
+        This site uses Scryfall data to fetch card details.
+      </p>
+    </section>
+    <section style="margin-top: 2rem">
+      <input
+        v-model="cardName"
+        type="text"
+        placeholder="Enter card name"
+        style="padding: 0.5rem; min-width: 200px"
+        @keyup.enter="searchCard"
+      />
+      <button
+        @click="searchCard"
+        :disabled="loading"
+        style="margin-left: 0.5rem; padding: 0.5rem 1rem"
+      >
+        {{ loading ? 'Searching...' : 'Search' }}
+      </button>
+      <div v-if="error" style="color: red; margin-top: 0.5rem">{{ error }}</div>
+      <div v-if="result" style="margin-top: 1rem">
+        <pre style="background: #f3f4f6; padding: 1rem; border-radius: 4px">{{
+          result
+        }}</pre>
+      </div>
     </section>
     <RouterView />
   </main>
