@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "clean-install": "rm -rf node_modules && rm package-lock.json && npm install",
-    "build": "nx run-many --target=build --parallel --projects=",
+    "build:api": "nx run-many --target=build --projects=api",
+    "build:ui": "nx run-many --target=build --projects=ui",
     "build:all": "nx run-many --target=build --parallel --all",
     "serve:api": "nx run-many --target=serve --projects=api",
     "serve:ui": "nx run-many --target=serve --projects=ui",
