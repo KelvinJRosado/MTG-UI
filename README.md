@@ -1,10 +1,10 @@
-# SimpleUi Monorepo
+# MTG-UI Monorepo
 
 This project uses [Nx](https://nx.dev) for monorepo management, TypeScript, Vue 3 (Composition API), and a simple Node.js API.
 
 ## Project Structure
-- `apps/ui`: Vue 3 frontend (Composition API)
-- `apps/api`: Node.js API (native HTTP)
+- `ui/`: Vue 3 frontend (Composition API)
+- `api/`: Node.js API (native HTTP)
 
 ## Usage
 
@@ -15,17 +15,32 @@ npm install
 
 ### Build all apps
 ```sh
-npm run build
+npm run build:all
 ```
 
-### Start the API server
+### Build API only
 ```sh
-npm run start:api
+npm run build:api
 ```
 
-### Start the UI (Vite dev server)
+### Build UI only
 ```sh
-npm run start:ui
+npm run build:ui
+```
+
+### Serve API (dev)
+```sh
+npm run serve:api
+```
+
+### Serve UI (dev)
+```sh
+npm run serve:ui
+```
+
+### Serve all (dev)
+```sh
+npm run serve:all
 ```
 
 ### Lint all projects
@@ -33,14 +48,14 @@ npm run start:ui
 npm run lint
 ```
 
-### Format code
-```sh
-npm run format
-```
-
 ### Clean Nx cache and reset
 ```sh
 npm run clean
+```
+
+### Clean install (remove node_modules and reinstall)
+```sh
+npm run clean-install
 ```
 
 ## Notes
