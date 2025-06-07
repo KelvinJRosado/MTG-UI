@@ -17,7 +17,19 @@ function generateRandomYear(): number {
 }
 
 // Convert Scryfall card data to our CardInfo format
-function convertToCardInfo(scryfallCard: any): CardInfo | null {
+interface ScryfallCard {
+  name: string;
+  image_uris?: {
+    normal?: string;
+    large?: string;
+    [key: string]: string | undefined;
+  };
+  released_at?: string;
+  cmc?: number;
+  [key: string]: unknown;
+}
+
+function convertToCardInfo(scryfallCard: ScryfallCard): CardInfo | null {
   if (!scryfallCard) return null;
 
   return {
