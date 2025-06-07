@@ -55,6 +55,13 @@
           </button>
         </div>
       </div>
+      
+      <!-- End game button -->
+      <div class="end-game-container">
+        <button @click="endGame" class="end-game-button">
+          End Game
+        </button>
+      </div>
     </div>
 
     <!-- Start game button -->
@@ -156,6 +163,12 @@ function makeGuess(guess: 'before' | 'after') {
     gameActive.value = false;
     gameOver.value = true;
   }
+}
+
+// Function to manually end the game
+function endGame() {
+  gameActive.value = false;
+  gameOver.value = true;
 }
 
 onMounted(() => {
@@ -318,5 +331,28 @@ p {
   font-size: 1.8rem;
   color: #2563eb;
   margin-bottom: 1rem;
+}
+
+.end-game-container {
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  justify-content: center;
+}
+
+.end-game-button {
+  padding: 0.5rem 1rem;
+  background-color: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.end-game-button:hover {
+  background-color: #4b5563;
 }
 </style>
