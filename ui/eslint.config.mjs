@@ -10,6 +10,10 @@ export default [
         parser: await import('@typescript-eslint/parser'),
       },
     },
+    parser: 'vue-eslint-parser',
+    parserOptions: {
+      parser: '@typescript-eslint/parser',
+    },
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx', '**/*.vue'],
