@@ -55,12 +55,10 @@
           </button>
         </div>
       </div>
-      
+
       <!-- End game button -->
       <div class="end-game-container">
-        <button @click="endGame" class="end-game-button">
-          End Game
-        </button>
+        <button @click="endGame" class="end-game-button">End Game</button>
       </div>
     </div>
 
@@ -85,53 +83,82 @@ const gameActive = ref(false);
 const gameOver = ref(false);
 const score = ref(0);
 const randomYear = ref(0);
+const sessionId = ref('');
 
-// Generate a random year between 1993 (first MTG set) and current year
-function generateRandomYear() {
-  const startYear = 1993;
-  const currentYear = new Date().getFullYear();
-  return Math.floor(Math.random() * (currentYear - startYear + 1)) + startYear;
-}
+// API base URL
+const API_BASE_URL = 'http://localhost:3000/api';
 
-function startNewGame() {
-  score.value = 0;
-  gameOver.value = false;
-  fetchRandomCard();
-}
-
-async function fetchRandomCard() {
+async function startNewGame() {
   error.value = '';
-  card.value = null;
   loading.value = true;
 
   try {
-    const apiUrl = 'http://localhost:3000/api/random-card';
-    const res = await fetch(apiUrl);
+    // Start a new game session
+    const response = await fetch(`${API_BASE_URL}/game/start`, {
+      method: 'POST',
+    });
 
-    if (!res.ok) {
-      const err = await res.json();
-      error.value = err.error || 'Error fetching random card.';
-    } else {
-      const data = await res.json();
+    if (!response.ok) {
+      const data = await response.json();
+      error.value = data.error || 'Error starting new game.';
+      return;
+    }
 
-      if (!data) {
-        error.value = 'Could not get a valid card. Please try again.';
-      } else {
-        card.value = {
-          name: data.name,
-          image: data.image_uris?.normal || data.image_uris?.large || null,
-          yearReleased: data.released_at
-            ? new Date(data.released_at).getFullYear()
-            : null,
-          cmc: data.cmc || null,
-        };
+    const gameData = await response.json();
 
-        // Generate a random year for comparison
-        randomYear.value = generateRandomYear();
+    // Set game state from API response
+    sessionId.value = gameData.sessionId;
+    score.value = gameData.score;
+    card.value = gameData.card;
+    randomYear.value = gameData.randomYear;
+    gameActive.value = gameData.active;
+    gameOver.value = gameData.gameOver || false;
+  } catch (e) {
+    console.error('Network error:', e);
+    error.value = 'Network error. Is the API running?';
+  } finally {
+    loading.value = false;
+  }
+}
 
-        // Set game active once we have a card
-        gameActive.value = true;
-      }
+async function fetchRandomCard() {
+  if (!sessionId.value) {
+    error.value = 'No active game session';
+    return;
+  }
+
+  error.value = '';
+  loading.value = true;
+
+  try {
+    // Get the next round from the API
+    const response = await fetch(`${API_BASE_URL}/game/next-round`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sessionId: sessionId.value,
+      }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      error.value = data.error || 'Error fetching next round.';
+      return;
+    }
+
+    const gameData = await response.json();
+
+    // Update game state from API response
+    score.value = gameData.score;
+    card.value = gameData.card;
+    randomYear.value = gameData.randomYear;
+    gameActive.value = gameData.active;
+    gameOver.value = gameData.gameOver || false;
+
+    if (gameData.message) {
+      console.log(gameData.message);
     }
   } catch (e) {
     console.error('Network error:', e);
@@ -141,34 +168,101 @@ async function fetchRandomCard() {
   }
 }
 
-function makeGuess(guess: 'before' | 'after') {
-  if (!card.value || !card.value.yearReleased) return;
-
-  const cardYear = card.value.yearReleased;
-  let isCorrect = false;
-
-  // Check if guess is correct
-  if (guess === 'after' && cardYear >= randomYear.value) {
-    isCorrect = true;
-  } else if (guess === 'before' && cardYear < randomYear.value) {
-    isCorrect = true;
+async function makeGuess(guess: 'before' | 'after') {
+  if (!sessionId.value || !gameActive.value) {
+    return;
   }
 
-  if (isCorrect) {
-    // Increase score and get a new card
-    score.value++;
-    fetchRandomCard();
-  } else {
-    // End the game
-    gameActive.value = false;
-    gameOver.value = true;
+  loading.value = true;
+
+  try {
+    // Submit guess to the API
+    const response = await fetch(`${API_BASE_URL}/game/guess`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sessionId: sessionId.value,
+        guess,
+      }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      error.value = data.error || 'Error processing guess.';
+      return;
+    }
+
+    const gameData = await response.json();
+
+    // Update game state from API response
+    score.value = gameData.score;
+    gameActive.value = gameData.active;
+    gameOver.value = gameData.gameOver || false;
+
+    if (gameData.message) {
+      console.log(gameData.message);
+    }
+
+    if (gameData.active) {
+      // If the game is still active, get the next card
+      fetchRandomCard();
+    } else if (gameData.gameOver) {
+      // If game is over, update card with full info that includes the release year
+      card.value = gameData.card;
+    }
+  } catch (e) {
+    console.error('Network error:', e);
+    error.value = 'Network error. Is the API running?';
+  } finally {
+    loading.value = false;
   }
 }
 
 // Function to manually end the game
-function endGame() {
-  gameActive.value = false;
-  gameOver.value = true;
+async function endGame() {
+  if (!sessionId.value) {
+    return;
+  }
+
+  loading.value = true;
+
+  try {
+    // End the game via API
+    const response = await fetch(`${API_BASE_URL}/game/end`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sessionId: sessionId.value,
+      }),
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      error.value = data.error || 'Error ending game.';
+      return;
+    }
+
+    const gameData = await response.json();
+
+    // Update game state from API response
+    score.value = gameData.score;
+    gameActive.value = false;
+    gameOver.value = true;
+
+    // Update card with full info that includes the release year
+    if (gameData.card) {
+      card.value = gameData.card;
+    }
+  } catch (e) {
+    console.error('Network error:', e);
+    error.value = 'Network error. Is the API running?';
+  } finally {
+    loading.value = false;
+  }
 }
 
 onMounted(() => {
