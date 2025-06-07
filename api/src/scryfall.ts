@@ -13,6 +13,7 @@ Scry.setAgent('kelvin-mtg-ui', '1.0.0');
 export async function getCardByName(name: string) {
   try {
     const card = await Scry.Cards.byName(name);
+
     if (card) {
       return {
         name: card.name,
@@ -23,6 +24,24 @@ export async function getCardByName(name: string) {
     return null;
   } catch (error) {
     console.log(`Error fetching card "${name}":`, error);
+    return null;
+  }
+}
+
+/**
+ * Fetches a random Magic: The Gathering card using scryfall-sdk.
+ * @returns A Promise resolving to the card object or null if not found.
+ */
+export async function getRandomCard() {
+  try {
+    const card = await Scry.Cards.random();
+    if (card) {
+      console.log('Random card selected:', card.name);
+      return card;
+    }
+    return null;
+  } catch (error) {
+    console.log('Error fetching random card:', error);
     return null;
   }
 }
