@@ -71,12 +71,19 @@ async function fetchRandomCard() {
       error.value = err.error || 'Error fetching random card.';
     } else {
       const data = await res.json();
-      card.value = {
-        name: data.name,
-        image: data.image_uris?.normal || data.image_uris?.large || null,
-        cmc: data.cmc,
-        mana_cost: data.mana_cost,
-      };
+
+      if (!data) {
+        error.value = 'Could not get a valid card. Please try again.';
+      } else {
+        card.value = {
+          name: data.name,
+          image: data.image_uris?.normal || data.image_uris?.large || null,
+          yearReleased: data.released_at
+            ? new Date(data.released_at).getFullYear()
+            : null,
+          cmc: data.cmc || null,
+        };
+      }
     }
   } catch (e) {
     console.error('Network error:', e);

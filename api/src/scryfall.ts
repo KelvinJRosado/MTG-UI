@@ -30,16 +30,58 @@ export async function getCardByName(name: string) {
 
 /**
  * Fetches a random Magic: The Gathering card using scryfall-sdk.
- * @returns A Promise resolving to the card object or null if not found.
+ * Validates that the card has all required attributes (name, image_uris, released_at, and cmc)
+ * and will retry fetching up to MAX_ATTEMPTS times if an invalid card is found.
+ * @returns A Promise resolving to an object with the name, image URIs, released_at date, and cmc, or null if not found.
  */
 export async function getRandomCard() {
+  const MAX_ATTEMPTS = 5;
+
   try {
-    const card = await Scry.Cards.random();
-    if (card) {
-      console.log('Random card selected:', card.name);
-      return card;
+    let attempts = 0;
+    let validCard = null;
+
+    while (!validCard && attempts < MAX_ATTEMPTS) {
+      attempts++;
+      console.log(`Attempt ${attempts}/${MAX_ATTEMPTS} to fetch a valid card`);
+
+      const card = await Scry.Cards.random();
+
+      if (!card) {
+        console.log('No card returned from API');
+        continue;
+      }
+
+      // Check if all required attributes are present
+      const hasName = !!card.name;
+      const hasImage = !!(card.image_uris?.normal || card.image_uris?.large);
+      const hasReleaseDate = !!card.released_at;
+      const hasCMC = typeof card.cmc === 'number' && card.cmc >= 0;
+
+      if (hasName && hasImage && hasReleaseDate && hasCMC) {
+        console.log('Valid card found:', card.name);
+        validCard = card;
+      } else {
+        console.log('Invalid card found, missing attributes:', {
+          name: card.name || 'missing',
+          hasImage: hasImage ? 'present' : 'missing',
+          hasReleaseDate: hasReleaseDate ? 'present' : 'missing',
+          hasCMC: hasCMC ? 'present' : 'missing',
+        });
+      }
     }
-    return null;
+
+    if (!validCard) {
+      console.log(`Failed to find a valid card after ${MAX_ATTEMPTS} attempts`);
+      return null;
+    }
+
+    return {
+      name: validCard.name,
+      image_uris: validCard.image_uris,
+      released_at: validCard.released_at,
+      cmc: validCard.cmc,
+    };
   } catch (error) {
     console.log('Error fetching random card:', error);
     return null;
