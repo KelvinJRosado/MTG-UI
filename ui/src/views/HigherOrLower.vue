@@ -29,8 +29,6 @@
         <div class="input-group">
           <input
             v-model="userGuess"
-            type="number"
-            min="0"
             placeholder="Enter guess here"
             class="guess-input"
           />
@@ -89,9 +87,14 @@ async function fetchRandomCard() {
 }
 
 function submitGuess() {
-  // Currently does nothing, as specified in the requirements
-  // This will be implemented in a future update
-  console.log('User guessed:', userGuess.value);
+  // Make sure userGuess has the current input value
+  if (userGuess.value) {
+    console.log('User guessed:', userGuess.value);
+    // Currently we just log the value as specified in requirements
+    // In the future, this would compare with card.value.cmc
+  } else {
+    console.log('No guess entered');
+  }
 }
 
 onMounted(() => {
