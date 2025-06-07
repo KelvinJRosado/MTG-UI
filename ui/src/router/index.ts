@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import HomeView from '../views/HomeView.vue';
 import HigherOrLower from '../views/HigherOrLower.vue';
 
 const router = createRouter({
@@ -7,14 +6,14 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView,
-    },
-    {
-      path: '/higher-or-lower',
       name: 'higher-or-lower',
       component: HigherOrLower,
     },
+    // Redirect any other paths to the main game
+    {
+      path: '/:catchAll(.*)',
+      redirect: '/'
+    }
   ],
 });
 

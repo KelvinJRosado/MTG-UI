@@ -4,12 +4,7 @@
 
 <template>
   <header>
-    <h1>MTG Simple UI</h1>
-    <nav>
-      <!-- Navigation links -->
-      <RouterLink to="/">Home</RouterLink>
-      <RouterLink to="/higher-or-lower">Higher or Lower</RouterLink>
-    </nav>
+    <h1>MTG Higher or Lower</h1>
   </header>
   <main>
     <RouterView />
