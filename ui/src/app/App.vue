@@ -18,7 +18,7 @@ async function searchCard() {
   loading.value = true;
   try {
     const apiUrl = `http://localhost:3000/api/card?name=${encodeURIComponent(
-      cardName.value
+      cardName.value,
     )}`;
 
     console.log('Calling API endpoint:', apiUrl);
@@ -74,20 +74,30 @@ async function searchCard() {
       <div v-if="error" style="color: red; margin-top: 0.5rem">{{ error }}</div>
       <div v-if="result" style="margin-top: 1rem">
         <div v-if="result.image">
-          <img
-            :src="result.image"
-            :alt="result.name || 'Card image'"
+          <div
             style="
+              height: 175px;
+              width: 100%;
               max-width: 350px;
+              overflow: hidden;
               border-radius: 8px;
               box-shadow: 0 2px 8px #0001;
               margin-bottom: 1rem;
             "
-          />
+          >
+            <img
+              :src="result.image"
+              :alt="result.name || 'Card image'"
+              style="
+                width: 100%;
+                height: 350px;
+                object-fit: cover;
+                object-position: top;
+                display: block;
+              "
+            />
+          </div>
         </div>
-        <pre style="background: #f3f4f6; padding: 1rem; border-radius: 4px">{{
-          result
-        }}</pre>
       </div>
     </section>
     <RouterView />
